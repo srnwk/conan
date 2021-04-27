@@ -392,7 +392,15 @@ class OSInfo(object):
     def bash_path():
         if os.getenv("CONAN_BASH_PATH"):
             return os.getenv("CONAN_BASH_PATH")
-        return which("bash")
+        path = which("bash")
+
+        if OSInfo().is_windows:
+            # do not return System32\\bash.exe, which will run WSL
+            lower = path.lower()
+            if 'system32\\bash.exe' in lower or 'sysnative\\bash.exe' in lower:
+                return None
+
+        return path
 
     @staticmethod
     def uname(options=None):
